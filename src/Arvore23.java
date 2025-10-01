@@ -1,49 +1,23 @@
-/**
- * Implementação de uma Árvore 2-3
- * 
- * Propriedades:
- * - Todo nó tem 1 ou 2 chaves
- * - Todo nó tem 2 ou 3 filhos (se não for folha)
- * - Todas as folhas estão no mesmo nível
- * - Árvore sempre balanceada
- * 
- * @author Lucas Dal Pra Brascher
- */
 public class Arvore23 {
     private No23 raiz;
     
-    /**
-     * Construtor: cria uma árvore vazia
-     */
     public Arvore23() {
         this.raiz = null;
     }
     
-    /**
-     * Verifica se a árvore está vazia
-     */
     public boolean estaVazia() {
         return raiz == null;
     }
     
-    /**
-     * Busca uma chave na árvore
-     * Retorna true se encontrou, false caso contrário
-     */
     public boolean buscar(int chave) {
         return buscarRecursivo(raiz, chave);
     }
     
-    /**
-     * Busca recursiva na árvore
-     */
     private boolean buscarRecursivo(No23 no, int chave) {
-        // Caso base: nó vazio
         if (no == null) {
             return false;
         }
         
-        // Verifica se a chave está no nó atual
         if (chave == no.getChave1()) {
             return true;
         }
@@ -52,38 +26,27 @@ public class Arvore23 {
             return true;
         }
         
-        // Se é folha e não encontrou, não existe
         if (no.ehFolha()) {
             return false;
         }
         
-        // Decide qual filho visitar
         if (chave < no.getChave1()) {
-            // Busca no filho esquerdo
             return buscarRecursivo(no.getEsquerdo(), chave);
         } else if (!no.temDuasChaves() || chave < no.getChave2()) {
-            // Busca no filho do meio
             return buscarRecursivo(no.getMeio(), chave);
         } else {
-            // Busca no filho direito
             return buscarRecursivo(no.getDireito(), chave);
         }
     }
     
-    /**
-     * Insere uma nova chave na árvore
-     */
     public void inserir(int chave) {
-        // Caso especial: árvore vazia
         if (estaVazia()) {
             raiz = new No23(chave);
             return;
         }
         
-        // Insere recursivamente e verifica se houve divisão
         ResultadoInsercao resultado = inserirRecursivo(raiz, chave);
         
-        // Se a raiz foi dividida, cria nova raiz
         if (resultado.houveDivisao()) {
             No23 novaRaiz = new No23(resultado.getChavePromovida());
             novaRaiz.setEsquerdo(raiz);
@@ -92,69 +55,50 @@ public class Arvore23 {
         }
     }
     
-    /**
-     * Insere recursivamente uma chave na árvore
-     * Retorna informações sobre possível divisão do nó
-     */
     private ResultadoInsercao inserirRecursivo(No23 no, int chave) {
-        // CASO 1: Nó é folha
         if (no.ehFolha()) {
             return inserirEmFolha(no, chave);
         }
         
-        // CASO 2: Nó interno - desce recursivamente
         ResultadoInsercao resultado;
         
         if (chave < no.getChave1()) {
-            // Insere no filho esquerdo
             resultado = inserirRecursivo(no.getEsquerdo(), chave);
             
             if (resultado.houveDivisao()) {
-                return tratarDivisaoFilho(no, resultado, 0); // filho esquerdo
+                return tratarDivisaoFilho(no, resultado, 0);
             }
         } else if (!no.temDuasChaves() || chave < no.getChave2()) {
-            // Insere no filho do meio
             resultado = inserirRecursivo(no.getMeio(), chave);
             
             if (resultado.houveDivisao()) {
-                return tratarDivisaoFilho(no, resultado, 1); // filho do meio
+                return tratarDivisaoFilho(no, resultado, 1);
             }
         } else {
-            // Insere no filho direito
             resultado = inserirRecursivo(no.getDireito(), chave);
             
             if (resultado.houveDivisao()) {
-                return tratarDivisaoFilho(no, resultado, 2); // filho direito
+                return tratarDivisaoFilho(no, resultado, 2);
             }
         }
         
-        return new ResultadoInsercao(); // Sem divisão
+        return new ResultadoInsercao();
     }
     
-    /**
-     * Insere uma chave em um nó folha
-     */
     private ResultadoInsercao inserirEmFolha(No23 folha, int chave) {
-        // Se a folha tem espaço (apenas 1 chave)
         if (!folha.temDuasChaves()) {
             folha.adicionarChave(chave);
-            return new ResultadoInsercao(); // Sem divisão
+            return new ResultadoInsercao();
         }
         
-        // Folha está cheia (2 chaves) - precisa dividir
         return dividirFolha(folha, chave);
     }
     
-    /**
-     * Divide uma folha que está cheia (tem 2 chaves e vai receber mais uma)
-     */
     private ResultadoInsercao dividirFolha(No23 folha, int novaChave) {
-        // Temos 3 valores para organizar
         int val1 = folha.getChave1();
         int val2 = folha.getChave2();
         int val3 = novaChave;
         
-        // Ordena os 3 valores (bubble sort manual)
         int temp;
         if (val1 > val2) {
             temp = val1;
@@ -172,7 +116,6 @@ public class Arvore23 {
             val2 = temp;
         }
         
-        // Reorganiza: val2 sobe, val1 fica no nó atual, val3 vai pro novo nó
         folha.setChave1(val1);
         folha.setChave2(0);
         folha.setTemDuasChaves(false);
@@ -182,35 +125,24 @@ public class Arvore23 {
         return new ResultadoInsercao(val2, novoNo);
     }
     
-    /**
-     * Trata a divisão de um filho, incorporando a chave promovida no nó pai
-     * posicaoFilho: 0 = esquerdo, 1 = meio, 2 = direito
-     */
     private ResultadoInsercao tratarDivisaoFilho(No23 pai, ResultadoInsercao divisaoFilho, int posicaoFilho) {
         int chaveSubindo = divisaoFilho.getChavePromovida();
         No23 novoFilho = divisaoFilho.getNovoNo();
         
-        // Se o pai tem espaço (apenas 1 chave)
         if (!pai.temDuasChaves()) {
             return incorporarChaveNoPai(pai, chaveSubindo, novoFilho, posicaoFilho);
         }
         
-        // Pai está cheio - precisa dividir
         return dividirNoInterno(pai, chaveSubindo, novoFilho, posicaoFilho);
     }
     
-    /**
-     * Incorpora uma chave promovida em um nó pai que tem espaço
-     */
     private ResultadoInsercao incorporarChaveNoPai(No23 pai, int chave, No23 novoFilho, int posicaoFilho) {
         if (chave < pai.getChave1()) {
-            // Chave vai ser a nova chave1
             pai.setChave2(pai.getChave1());
             pai.setChave1(chave);
             pai.setDireito(pai.getMeio());
             pai.setMeio(novoFilho);
         } else {
-            // Chave vai ser a chave2
             pai.setChave2(chave);
             if (posicaoFilho == 0) {
                 pai.setDireito(pai.getMeio());
@@ -221,43 +153,32 @@ public class Arvore23 {
         }
         pai.setTemDuasChaves(true);
         
-        return new ResultadoInsercao(); // Sem divisão
+        return new ResultadoInsercao();
     }
     
-    /**
-     * Divide um nó interno que está cheio
-     */
     private ResultadoInsercao dividirNoInterno(No23 no, int novaChave, No23 novoFilho, int posicaoFilho) {
-        // Temos 3 chaves e 4 filhos para redistribuir
         int[] chaves = new int[3];
         No23[] filhos = new No23[4];
         
-        // Coleta as chaves existentes
         chaves[0] = no.getChave1();
         chaves[1] = no.getChave2();
         chaves[2] = novaChave;
         
-        // Coleta os filhos existentes
         filhos[0] = no.getEsquerdo();
         filhos[1] = no.getMeio();
         filhos[2] = no.getDireito();
         
-        // Insere o novo filho na posição correta
         if (posicaoFilho == 0) {
-            // Novo filho vem depois do esquerdo
             filhos[3] = filhos[2];
             filhos[2] = filhos[1];
             filhos[1] = novoFilho;
         } else if (posicaoFilho == 1) {
-            // Novo filho vem depois do meio
             filhos[3] = filhos[2];
             filhos[2] = novoFilho;
         } else {
-            // Novo filho vem depois do direito
             filhos[3] = novoFilho;
         }
         
-        // Ordena as chaves (bubble sort manual)
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2 - i; j++) {
                 if (chaves[j] > chaves[j + 1]) {
@@ -267,14 +188,6 @@ public class Arvore23 {
                 }
             }
         }
-        
-        // Reorganiza os filhos de acordo com as chaves ordenadas
-        // (isso é complexo e depende de como as chaves foram reorganizadas)
-        // Por simplicidade, vamos reorganizar baseado nas chaves
-        
-        // chaves[1] sobe (meio)
-        // chaves[0] fica no nó atual
-        // chaves[2] vai para o novo nó
         
         no.setChave1(chaves[0]);
         no.setChave2(0);
@@ -290,65 +203,209 @@ public class Arvore23 {
         return new ResultadoInsercao(chaves[1], novoNo);
     }
     
-    /**
-     * Retorna a raiz da árvore
-     */
+    public boolean remover(int chave) {
+        if (estaVazia()) {
+            return false;
+        }
+        
+        boolean removeu = removerRecursivo(raiz, null, chave, -1);
+        
+        if (raiz != null && raiz.getChave1() == 0 && !raiz.temDuasChaves()) {
+            if (!raiz.ehFolha()) {
+                raiz = raiz.getEsquerdo();
+            } else {
+                raiz = null;
+            }
+        }
+        
+        return removeu;
+    }
+    
+    private boolean removerRecursivo(No23 no, No23 pai, int chave, int posicaoNoFilho) {
+        if (no == null) {
+            return false;
+        }
+        
+        if (chave == no.getChave1() || (no.temDuasChaves() && chave == no.getChave2())) {
+            if (no.ehFolha()) {
+                return removerDeFolha(no, pai, chave, posicaoNoFilho);
+            } else {
+                return removerDeNoInterno(no, pai, chave, posicaoNoFilho);
+            }
+        }
+        
+        if (no.ehFolha()) {
+            return false;
+        }
+        
+        if (chave < no.getChave1()) {
+            return removerRecursivo(no.getEsquerdo(), no, chave, 0);
+        } else if (!no.temDuasChaves() || chave < no.getChave2()) {
+            return removerRecursivo(no.getMeio(), no, chave, 1);
+        } else {
+            return removerRecursivo(no.getDireito(), no, chave, 2);
+        }
+    }
+    
+    private boolean removerDeFolha(No23 folha, No23 pai, int chave, int posicao) {
+        if (folha.temDuasChaves()) {
+            if (chave == folha.getChave1()) {
+                folha.setChave1(folha.getChave2());
+            }
+            folha.setChave2(0);
+            folha.setTemDuasChaves(false);
+            return true;
+        } else {
+            if (pai == null) {
+                folha.setChave1(0);
+                return true;
+            }
+            
+            return rebalancearAposRemocao(folha, pai, posicao);
+        }
+    }
+    
+    private boolean removerDeNoInterno(No23 no, No23 pai, int chave, int posicao) {
+        No23 subArvore;
+        
+        if (chave == no.getChave1()) {
+            subArvore = no.getEsquerdo();
+        } else {
+            subArvore = no.getMeio();
+        }
+        
+        int predecessora = encontrarMaximo(subArvore);
+        
+        if (chave == no.getChave1()) {
+            no.setChave1(predecessora);
+        } else {
+            no.setChave2(predecessora);
+        }
+        
+        return removerRecursivo(subArvore, no, predecessora, posicao);
+    }
+    
+    private int encontrarMaximo(No23 no) {
+        while (!no.ehFolha()) {
+            if (no.temDuasChaves() && no.getDireito() != null) {
+                no = no.getDireito();
+            } else {
+                no = no.getMeio();
+            }
+        }
+        
+        return no.temDuasChaves() ? no.getChave2() : no.getChave1();
+    }
+    
+    private boolean rebalancearAposRemocao(No23 folha, No23 pai, int posicao) {
+        if (posicao == 0) {
+            No23 irmao = pai.getMeio();
+            if (irmao != null && irmao.temDuasChaves()) {
+                folha.setChave1(pai.getChave1());
+                pai.setChave1(irmao.getChave1());
+                irmao.setChave1(irmao.getChave2());
+                irmao.setChave2(0);
+                irmao.setTemDuasChaves(false);
+                return true;
+            }
+        } else if (posicao == 1) {
+            No23 irmaoEsq = pai.getEsquerdo();
+            if (irmaoEsq != null && irmaoEsq.temDuasChaves()) {
+                folha.setChave1(pai.getChave1());
+                pai.setChave1(irmaoEsq.getChave2());
+                irmaoEsq.setChave2(0);
+                irmaoEsq.setTemDuasChaves(false);
+                return true;
+            }
+            
+            if (pai.temDuasChaves()) {
+                No23 irmaoDir = pai.getDireito();
+                if (irmaoDir != null && irmaoDir.temDuasChaves()) {
+                    folha.setChave1(pai.getChave2());
+                    pai.setChave2(irmaoDir.getChave1());
+                    irmaoDir.setChave1(irmaoDir.getChave2());
+                    irmaoDir.setChave2(0);
+                    irmaoDir.setTemDuasChaves(false);
+                    return true;
+                }
+            }
+        }
+        
+        return fundirNos(folha, pai, posicao);
+    }
+    
+    private boolean fundirNos(No23 folha, No23 pai, int posicao) {
+        if (posicao == 0) {
+            No23 irmao = pai.getMeio();
+            folha.setChave2(irmao.getChave1());
+            folha.setTemDuasChaves(true);
+            
+            if (pai.temDuasChaves()) {
+                pai.setChave1(pai.getChave2());
+                pai.setChave2(0);
+                pai.setTemDuasChaves(false);
+                pai.setMeio(pai.getDireito());
+                pai.setDireito(null);
+            } else {
+                pai.setChave1(0);
+            }
+        } else {
+            No23 irmao = pai.getEsquerdo();
+            irmao.setChave2(folha.getChave1());
+            irmao.setTemDuasChaves(true);
+            
+            if (pai.temDuasChaves()) {
+                pai.setChave1(pai.getChave2());
+                pai.setChave2(0);
+                pai.setTemDuasChaves(false);
+                pai.setMeio(pai.getDireito());
+                pai.setDireito(null);
+            } else {
+                pai.setChave1(0);
+            }
+        }
+        
+        return true;
+    }
+    
     public No23 getRaiz() {
         return raiz;
     }
     
-    /**
-     * Imprime a árvore em ordem (in-order traversal)
-     */
     public void imprimirEmOrdem() {
         if (estaVazia()) {
-            System.out.println("Árvore vazia!");
+            System.out.println("Arvore vazia!");
             return;
         }
-        System.out.print("Árvore em ordem: ");
+        System.out.print("Arvore em ordem: ");
         imprimirEmOrdemRecursivo(raiz);
         System.out.println();
     }
     
-    /**
-     * Imprime recursivamente em ordem
-     */
     private void imprimirEmOrdemRecursivo(No23 no) {
         if (no == null) {
             return;
         }
         
-        // Visita filho esquerdo
         imprimirEmOrdemRecursivo(no.getEsquerdo());
-        
-        // Imprime primeira chave
         System.out.print(no.getChave1() + " ");
-        
-        // Visita filho do meio
         imprimirEmOrdemRecursivo(no.getMeio());
         
-        // Se tem segunda chave, imprime e visita filho direito
         if (no.temDuasChaves()) {
             System.out.print(no.getChave2() + " ");
             imprimirEmOrdemRecursivo(no.getDireito());
         }
     }
     
-    /**
-     * Imprime a estrutura da árvore (visualização hierárquica)
-     */
     public void imprimirArvore() {
         if (estaVazia()) {
-            System.out.println("Árvore vazia!");
+            System.out.println("Arvore vazia!");
             return;
         }
-        System.out.println("Estrutura da árvore:");
+        System.out.println("Estrutura da arvore:");
         imprimirArvoreRecursivo(raiz, "", true);
     }
     
-    /**
-     * Imprime recursivamente a estrutura da árvore
-     */
     private void imprimirArvoreRecursivo(No23 no, String prefixo, boolean ehUltimo) {
         if (no == null) {
             return;
@@ -360,12 +417,10 @@ public class Arvore23 {
         
         if (!no.ehFolha()) {
             if (no.temDuasChaves()) {
-                // Nó com 3 filhos
                 imprimirArvoreRecursivo(no.getEsquerdo(), novoPrefixo, false);
                 imprimirArvoreRecursivo(no.getMeio(), novoPrefixo, false);
                 imprimirArvoreRecursivo(no.getDireito(), novoPrefixo, true);
             } else {
-                // Nó com 2 filhos
                 imprimirArvoreRecursivo(no.getEsquerdo(), novoPrefixo, false);
                 imprimirArvoreRecursivo(no.getMeio(), novoPrefixo, true);
             }

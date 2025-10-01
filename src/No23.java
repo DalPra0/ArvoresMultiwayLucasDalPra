@@ -1,23 +1,12 @@
-/**
- * Classe que representa um nó da Árvore 2-3
- * Um nó pode ter:
- * - 1 ou 2 chaves (valores)
- * - 2 ou 3 filhos (se não for folha)
- * 
- * @author Lucas Dal Pra Brascher
- */
 public class No23 {
-    // Dados do nó
-    private int chave1;           // Primeira chave (sempre presente)
-    private int chave2;           // Segunda chave (pode não existir)
-    private boolean temDuasChaves; // Flag indicando se tem 2 chaves
+    private int chave1;
+    private int chave2;
+    private boolean temDuasChaves;
     
-    // Filhos do nó
-    private No23 esquerdo;    // Filho esquerdo (valores < chave1)
-    private No23 meio;        // Filho do meio (valores entre chave1 e chave2)
-    private No23 direito;     // Filho direito (valores > chave2)
+    private No23 esquerdo;
+    private No23 meio;
+    private No23 direito;
     
-    // Construtor: cria nó com uma chave
     public No23(int chave) {
         this.chave1 = chave;
         this.chave2 = 0;
@@ -26,8 +15,6 @@ public class No23 {
         this.meio = null;
         this.direito = null;
     }
-    
-    // ===== GETTERS E SETTERS =====
     
     public int getChave1() {
         return chave1;
@@ -77,41 +64,25 @@ public class No23 {
         this.direito = direito;
     }
     
-    // ===== MÉTODOS AUXILIARES =====
-    
-    /**
-     * Verifica se o nó é uma folha (não tem filhos)
-     */
     public boolean ehFolha() {
         return esquerdo == null && meio == null && direito == null;
     }
     
-    /**
-     * Adiciona uma segunda chave ao nó
-     * Organiza as chaves em ordem crescente
-     */
     public void adicionarChave(int novaChave) {
         if (temDuasChaves) {
-            // Nó já tem 2 chaves - isso não deveria acontecer
             return;
         }
         
-        // Adiciona e organiza em ordem
         if (novaChave < chave1) {
-            // Nova chave é menor que a primeira
             chave2 = chave1;
             chave1 = novaChave;
         } else {
-            // Nova chave é maior que a primeira
             chave2 = novaChave;
         }
         
         temDuasChaves = true;
     }
     
-    /**
-     * Retorna uma representação em String do nó
-     */
     public String toString() {
         if (temDuasChaves) {
             return "[" + chave1 + ", " + chave2 + "]";
