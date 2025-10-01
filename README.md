@@ -104,6 +104,3 @@ Seguindo as regras do trabalho:
 
 [Link do YouTube será adicionado aqui]
 
-## Licenca
-
-Projeto academico - PUCPR 2024
